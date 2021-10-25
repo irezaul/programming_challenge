@@ -9,25 +9,28 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var db *sql.DB
+var err error
+
 func init() {
 
-	// db, err := sql.Open("mysql", "romdlnyq_master:}-j+ML08O[Ba@tcp(localhost:3306)/romdlnyq_master")
-	connString := "romdlnyq_master:}-j+ML08O[Ba@tcp(localhost:3306)/romdlnyq_master"
-	db, err := sql.Open("mysql", connString)
+	//db, err = sql.Open("mysql", "romdlnyq_master:}-j+ML08O[Ba@tcp(199.188.200.231:3306)/romdlnyq_master")
+
+	db, err = sql.Open("mysql", "root:master123@tcp(127.0.0.1:3306)/master")
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	defer db.Close()
+	//defer db.Close()
 
-	insert, err := db.Query("INSERT INTO `request` (`id`, `name`, `email`, `pass`, `repass`, `status`) VALUES (NULL, 'mostain', 'mostain@email.com', 'mostain123', 'mostain123', '1');")
+	// insert, err := db.Query(sql)
 
-	if err != nil {
-		panic(err.Error())
-	}
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
 
-	defer insert.Close()
+	// defer insert.Close()
 
 	fmt.Println("db connection successfully")
 
@@ -80,14 +83,29 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 // request to ...
 func request(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	pass := r.FormValue("pass")
+	repass := r.FormValue("repass")
 
-	// by loop
-	r.ParseForm()
-
-	for key, val := range r.Form { // slice string
-
-		fmt.Println(key, val)
+	qs := "INSERT INTO `request` (`id`, `name`, `email`, `pass`, `repass`, `status`) VALUES (NULL, '%s', '%s', '%s', '%s',  '1');"
+	sql := fmt.Sprintf(qs, name, email, pass, repass)
+	//fmt.Println(sql)
+	insert, err := db.Query(sql)
+	if err != nil {
+		panic(err.Error())
 	}
+	defer insert.Close()
 
-	fmt.Fprint(w, `Recived`)
+	fmt.Fprintf(w, `ok`)
+
+	// by loop-----
+	// r.ParseForm()
+
+	// for key, val := range r.Form { // slice string
+
+	// 	fmt.Println(key, val)
+	// }
+
+	// fmt.Fprint(w, `Recived`)
 }
